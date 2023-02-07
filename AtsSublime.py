@@ -2,14 +2,9 @@ import sublime, sublime_plugin
 import subprocess
 import os
 
-from Dart.sublime_plugin_lib import PluginLogger
-
-_logger = PluginLogger(__name__)
-
 class AtsSublimeCommand(sublime_plugin.TextCommand):
   def run(self, edit):
-    self.view.insert(edit, 0, "Hello, World!")
-    _logger.debug("ATS LINTER")
+    print("ATS LINTER")
 
 
 class AtsFormatCommand(sublime_plugin.TextCommand):
@@ -39,10 +34,6 @@ def check_is_enabled_file(file_name):
   return False
 
 class EventDump(sublime_plugin.EventListener):
-
-  def __init__(self, *args, **kwargs):
-    sublime_plugin.EventListener.__init__(self, *args, **kwargs)
-    _logger.debug("Dartlint plugin loaded.")
       
   def on_post_save(self, view):
     if check_is_enabled_file(view.file_name()):
