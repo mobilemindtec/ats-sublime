@@ -2,19 +2,24 @@ import sublime, sublime_plugin
 import subprocess
 import os
 
-class AtsSublimeCommand(sublime_plugin.TextCommand):
-  def run(self, edit):
-    print("ATS LINTER")
-
-
 class AtsFormatCommand(sublime_plugin.TextCommand):
   def run(self, edit):
 
     region = sublime.Region(0, self.view.size())
     content = self.view.substr(region)
 
+    sp = self.view.file_name().split(".")
+    ext = sp[len(sp)-1]
+
+    tmp_file = "/tmp/code.%s" % ext
+    with open(tmp_file, 'w') as f:
+      f.write(content)
+    print("tmp_file %s" % tmp_file)
+
+    cmd = ["atsfmt", tmp_file]
+
     stdout, stderr = subprocess.Popen(
-      ["./atsfmt", self.view.file_name()],
+      [" ".join(cmd)],
       stdin=subprocess.PIPE,
       stdout=subprocess.PIPE,
       stderr=subprocess.PIPE,      
@@ -23,6 +28,7 @@ class AtsFormatCommand(sublime_plugin.TextCommand):
     if stderr.strip():
       print("ATS FORMAT ERROR: %s" % stderr.strip().decode())
     else:
+      print("out %s" % stdout.decode('UTF-8'))
       self.view.replace(edit, region, stdout.decode('UTF-8'))
 
 def check_is_enabled_file(file_name):    
@@ -33,9 +39,10 @@ def check_is_enabled_file(file_name):
       return True
   return False
 
-class EventDump(sublime_plugin.EventListener):
+class AtsEventDump(sublime_plugin.EventListener):
       
-  def on_post_save(self, view):
+  def on_pre_save(self, view):
+    print("on_pre_save %s " % view.file_name())
     if check_is_enabled_file(view.file_name()):
       view.run_command('ats_format')
 
