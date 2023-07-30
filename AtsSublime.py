@@ -14,7 +14,6 @@ class AtsFormatCommand(sublime_plugin.TextCommand):
     tmp_file = "/tmp/code.%s" % ext
     with open(tmp_file, 'w') as f:
       f.write(content)
-    print("tmp_file %s" % tmp_file)
 
     cmd = ["atsfmt", tmp_file]
 
@@ -26,9 +25,9 @@ class AtsFormatCommand(sublime_plugin.TextCommand):
       shell=True).communicate()
 
     if stderr.strip():
-      print("ATS FORMAT ERROR: %s" % stderr.strip().decode())
-    else:
-      print("out %s" % stdout.decode('UTF-8'))
+      sublime.error_message("ATS format error: %s" % stderr.strip().decode('UTF-8'))
+      print("ATS FORMAT ERROR: %s" % stderr.strip().decode('UTF-8'))
+    else:      
       self.view.replace(edit, region, stdout.decode('UTF-8'))
 
 def check_is_enabled_file(file_name):    
